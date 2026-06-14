@@ -41,5 +41,36 @@ VALUES
   ('MH-2025-002', 'Ministry of Health', 'MK 550,000,000', 'MK 310,000,000', 'MK 200,000,000', 36, '#1D9E75'),
   ('ME-2025-003', 'Ministry of Education', 'MK 420,000,000', 'MK 180,000,000', 'MK 150,000,000', 36, '#BA7517'),
   ('MI-2025-004', 'Ministry of Infrastructure', 'MK 480,000,000', 'MK 90,000,000', 'MK 90,000,000', 19, '#D85A30'),
-  ('ICT-2025-005', 'ICT Division', 'MK 180,000,000', 'MK 98,000,000', 'MK 88,000,000', 49, '#7F77DD'),
   ('AD-2025-006', 'Administration', 'MK 90,000,000', 'MK 22,000,000', 'MK 22,000,000', 24, '#888780');
+
+-- Update Suppliers with new fields
+UPDATE suppliers SET 
+  bank_details = 'Standard Bank, Acc: 123456789, Branch: Capital City',
+  certifications = 'ISO 9001, OHSAS 18001',
+  performance_rating = 4.80
+WHERE id IN ('SUP-01', 'SUP-02', 'SUP-03', 'SUP-04', 'SUP-05');
+
+-- Add Contracts
+INSERT INTO contracts (id, supplier_id, title, start_date, end_date, value, status, terms)
+VALUES
+  ('CON-2025-001', 'SUP-02', 'Annual IT Hardware Supply', '2025-01-01', '2025-12-31', 'MK 150,000,000', 'Active', 'Net 30, Delivery within 14 days'),
+  ('CON-2025-002', 'SUP-03', 'Fuel Framework Agreement', '2025-03-01', '2026-02-28', 'MK 50,000,000', 'Active', 'Net 15, Delivery within 48 hours');
+
+-- Add Catalogue
+INSERT INTO catalogue (id, name, category, supplier_id, unit_price, pricing_tier, status)
+VALUES
+  ('CAT-001', 'HP ProBook Laptop', 'ICT Equipment', 'SUP-02', 'MK 950,000', 'Tier 1 (>10 units: 5% discount)', 'Active'),
+  ('CAT-002', 'Dell Monitor 24"', 'ICT Equipment', 'SUP-02', 'MK 250,000', 'Tier 1', 'Active'),
+  ('CAT-003', 'A4 Paper Ream', 'Stationery', 'SUP-05', 'MK 3,500', 'Standard', 'Active');
+
+-- Add Goods Receipts
+INSERT INTO goods_receipts (id, po_id, received_date, received_by, items_received, condition, status)
+VALUES
+  ('GRN-2025-101', 'PO-2025-016', '2025-05-14', 'Warehouse Team', 'Diesel Fuel 500L', 'Good', 'Received'),
+  ('GRN-2025-102', 'PO-2025-014', '2025-05-11', 'Stores Officer', 'A4 Paper, Pens, Files', 'Good', 'Received');
+
+-- Add Invoices
+INSERT INTO invoices (id, supplier_id, po_id, grn_id, amount, issue_date, due_date, document_url, status, match_status)
+VALUES
+  ('INV-2025-501', 'SUP-03', 'PO-2025-016', 'GRN-2025-101', 'MK 420,000', '2025-05-15', '2025-05-30', NULL, 'Pending', 'Matched'),
+  ('INV-2025-502', 'SUP-05', 'PO-2025-014', 'GRN-2025-102', 'MK 185,000', '2025-05-12', '2025-05-27', NULL, 'Paid', 'Matched');

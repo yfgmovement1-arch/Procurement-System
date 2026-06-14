@@ -5,7 +5,7 @@ import { StatusPill } from '../components/StatusPill';
 export function Inventory({ inventory }) {
   return (
     <div>
-      <div className="metrics" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1.25rem' }}>
+      <div className="metrics metrics-3">
         <MetricCard label="Total Items" value={(inventory || []).length.toString()} badgeText="Loaded from database" badgeClass="badge-info" />
         <MetricCard label="Low Stock Alerts" value="14" badgeText="Reorder needed" badgeClass="badge-warn" />
         <MetricCard label="Stock Value" value="MK 42.3M" badgeText="Updated today" badgeClass="badge-success" />
@@ -14,7 +14,8 @@ export function Inventory({ inventory }) {
         <div className="section-header">
           <span className="section-title">Inventory Items</span>
         </div>
-        <table>
+        <div className="table-scroll">
+          <table>
           <thead>
             <tr>
               <th>Item Code</th><th>Description</th><th>Category</th>
@@ -37,7 +38,8 @@ export function Inventory({ inventory }) {
               <tr><td colSpan="7" className="empty">No inventory items found.</td></tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );

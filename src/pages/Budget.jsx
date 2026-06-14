@@ -30,7 +30,8 @@ export function Budget({ budgetLines }) {
         <div className="section-header">
           <span className="section-title">Budget Lines by Vote</span>
         </div>
-        <table>
+        <div className="table-scroll">
+          <table>
           <thead>
             <tr>
               <th>Vote / Department</th><th>Budget Code</th><th>Allocated (MWK)</th>
@@ -56,7 +57,8 @@ export function Budget({ budgetLines }) {
               <tr><td colSpan="6" className="empty">No budget data found.</td></tr>
             )}
           </tbody>
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ export function Reports() {
   ];
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.25rem' }}>
+    <div className="reports-grid">
       {reports.map((r, i) => (
         <div key={i} className="section" style={{ cursor: 'pointer', marginBottom: 0 }} onClick={() => handleReport(r.prompt)}>
           <div style={{ padding: '1.25rem', textAlign: 'center' }}>

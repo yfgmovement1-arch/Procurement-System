@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { IconPlus } from '@tabler/icons-react';
+import { IconPlus, IconMenu2 } from '@tabler/icons-react';
 
-export function Topbar({ onNewRequest }) {
+export function Topbar({ onNewRequest, onToggleSidebar }) {
   const location = useLocation();
   
   const getPageTitle = () => {
@@ -21,15 +21,22 @@ export function Topbar({ onNewRequest }) {
 
   return (
     <div className="topbar">
-      <div className="topbar-title">{getPageTitle()}</div>
+      <div className="topbar-left">
+        <button className="mobile-menu-btn" onClick={onToggleSidebar}>
+          <IconMenu2 size={20} />
+        </button>
+        <div className="topbar-title">{getPageTitle()}</div>
+      </div>
       <div className="topbar-right">
         <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
           FY 2025/26 &nbsp;|&nbsp; Malawi Kwacha (MWK)
         </div>
-        <button className="btn btn-primary" onClick={onNewRequest}>
-          <IconPlus size={16} />
-          New Request
-        </button>
+        {(location.pathname === '/' || location.pathname === '/requests') && (
+          <button className="btn btn-primary" onClick={onNewRequest}>
+            <IconPlus size={16} />
+            <span className="btn-label">New Request</span>
+          </button>
+        )}
       </div>
     </div>
   );

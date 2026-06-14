@@ -10,7 +10,8 @@ export function Modal({ isOpen, onClose, onSubmit }) {
     amount: '',
     priority: 'Normal',
     date: '',
-    justification: ''
+    justification: '',
+    costCenter: ''
   });
 
   if (!isOpen) return null;
@@ -24,21 +25,23 @@ export function Modal({ isOpen, onClose, onSubmit }) {
     e.preventDefault();
     onSubmit(formData);
     setFormData({
-      dept: '', requestedBy: '', item: '', quantity: 1, amount: '', priority: 'Normal', date: '', justification: ''
+      dept: '', requestedBy: '', item: '', quantity: 1, amount: '', priority: 'Normal', date: '', justification: '', costCenter: ''
     });
   };
 
   return (
     <div style={{
-      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'rgba(0,0,0,.45)', zIndex: 100, minHeight: 600,
-      display: 'flex', alignItems: 'center', justifyContent: 'center'
+      position: 'fixed', inset: 0,
+      background: 'rgba(0,0,0,.5)', zIndex: 100,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '1rem'
     }}>
       <div style={{
         background: 'var(--color-background-primary)',
         borderRadius: 'var(--border-radius-lg)',
         border: '0.5px solid var(--color-border-tertiary)',
-        width: 520, padding: '1.5rem'
+        width: '100%', maxWidth: 520, padding: '1.5rem',
+        maxHeight: '90dvh', overflowY: 'auto'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
           <div style={{ fontSize: 16, fontWeight: 500 }}>New Purchase Request</div>
@@ -90,14 +93,19 @@ export function Modal({ isOpen, onClose, onSubmit }) {
             </div>
           </div>
 
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label className="form-label">Cost Center</label>
+            <input name="costCenter" value={formData.costCenter} onChange={handleChange} required className="form-input" placeholder="e.g. IT-001" />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
             <label className="form-label">Justification</label>
             <textarea name="justification" value={formData.justification} onChange={handleChange} required className="form-input" rows="3" placeholder="Reason for procurement request..."></textarea>
           </div>
 
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" className="btn" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary">
+            <button type="button" className="btn btn-action" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-action-primary">
               <IconSend size={16} />
               Submit Request
             </button>
