@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { StatusPill } from '../components/StatusPill';
 import { IconArrowLeft, IconCheck, IconX, IconClock, IconFileDescription } from '@tabler/icons-react';
-import { updatePurchaseRequestStatus } from '../lib/supabaseClient';
+import { updatePurchaseRequestStatus, deletePurchaseRequest } from '../lib/supabaseClient';
 
-export function PurchaseRequests({ requests, currentRole, onRefresh }) {
+export function PurchaseRequests({ requests, currentRole, refresh, setToastMsg }) {
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [selectedReq, setSelectedReq] = useState(null);
@@ -35,10 +35,11 @@ export function PurchaseRequests({ requests, currentRole, onRefresh }) {
       }
 
       await updatePurchaseRequestStatus(selectedReq.id, nextStatus, nextStage);
-      await onRefresh();
+      await refresh.requests();
       setSelectedReq({ ...selectedReq, status: nextStatus, approvalStage: nextStage });
     } catch (err) {
       console.error(err);
+      setToastMsg('Failed to approve request');
     }
     setLoadingAction(false);
   };
@@ -47,10 +48,26 @@ export function PurchaseRequests({ requests, currentRole, onRefresh }) {
     setLoadingAction(true);
     try {
       await updatePurchaseRequestStatus(selectedReq.id, 'Rejected', 'Rejected');
-      await onRefresh();
+      await refresh.requests();
       setSelectedReq({ ...selectedReq, status: 'Rejected', approvalStage: 'Rejected' });
     } catch (err) {
       console.error(err);
+      setToastMsg('Failed to reject request');
+    }
+    setLoadingAction(false);
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this request?')) return;
+    setLoadingAction(true);
+    try {
+      await deletePurchaseRequest(selectedReq.id);
+      await refresh.requests();
+      setToastMsg('Request deleted successfully');
+      setSelectedReq(null);
+    } catch (err) {
+      console.error(err);
+      setToastMsg('Failed to delete request');
     }
     setLoadingAction(false);
   };
@@ -68,9 +85,14 @@ export function PurchaseRequests({ requests, currentRole, onRefresh }) {
   if (selectedReq) {
     return (
       <div className="pr-details">
-        <button className="btn btn-text" onClick={() => setSelectedReq(null)} style={{ marginBottom: '1rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <IconArrowLeft size={16} /> Back to Requests
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <button className="btn btn-text" onClick={() => setSelectedReq(null)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <IconArrowLeft size={16} /> Back to Requests
+          </button>
+          <button className="btn btn-action" onClick={handleDelete} disabled={loadingAction} style={{ color: '#e11d48', borderColor: '#e11d48' }}>
+            Delete Request
+          </button>
+        </div>
         
         <div className="glass-panel" style={{ marginBottom: '1.5rem' }}>
           <div className="flex-between">

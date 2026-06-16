@@ -1,20 +1,77 @@
 import React, { useState, useContext } from 'react';
 import { StatusPill } from '../components/StatusPill';
-import { IconPhone, IconPlus, IconArrowLeft, IconBuildingBank, IconCertificate, IconChartBar, IconStar } from '@tabler/icons-react';
+import { IconPhone, IconPlus, IconArrowLeft, IconBuildingBank, IconCertificate, IconChartBar, IconStar, IconTrash } from '@tabler/icons-react';
 import { RoleContext } from '../App';
 import { canPerform } from '../lib/rbac';
+import { createSupplier, deleteSupplier } from '../lib/supabaseClient';
 
-export function Suppliers({ suppliers }) {
+export function Suppliers({ suppliers, refresh, setToastMsg }) {
   const { currentRole } = useContext(RoleContext);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [view, setView] = useState('profile'); // profile, performance
+  const [isAdding, setIsAdding] = useState(false);
+  const [formData, setFormData] = useState({ name: '', category: '', phone: '', location: '' });
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this supplier?')) return;
+    try {
+      await deleteSupplier(selectedSupplier.id);
+      await refresh.suppliers();
+      setToastMsg('Supplier deleted');
+      setSelectedSupplier(null);
+    } catch (err) {
+      setToastMsg('Error deleting supplier');
+    }
+  };
+
+  const handleCreate = async (e) => {
+    e.preventDefault();
+    try {
+      const newId = `SUP-${Date.now().toString().slice(-4)}`;
+      await createSupplier({
+        id: newId,
+        name: formData.name,
+        category: formData.category,
+        phone: formData.phone,
+        location: formData.location,
+        rating: 0,
+        color: 'background:#E6F1FB;color:#0C447C'
+      });
+      await refresh.suppliers();
+      setToastMsg('Supplier onboarded successfully');
+      setIsAdding(false);
+    } catch (err) {
+      setToastMsg('Error onboarding supplier');
+    }
+  };
+
+  if (isAdding) {
+    return (
+      <div className="glass-panel">
+        <button className="btn btn-text" onClick={() => setIsAdding(false)} style={{ marginBottom: '1rem' }}><IconArrowLeft size={16} /> Back</button>
+        <h2>Onboard New Supplier</h2>
+        <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem', maxWidth: '400px' }}>
+          <input className="form-input" placeholder="Supplier Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+          <input className="form-input" placeholder="Category (e.g., Office Supplies)" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} required />
+          <input className="form-input" placeholder="Phone" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} required />
+          <input className="form-input" placeholder="Location" value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} required />
+          <button type="submit" className="btn btn-action-primary">Onboard Supplier</button>
+        </form>
+      </div>
+    );
+  }
 
   if (selectedSupplier) {
     return (
       <div className="supplier-details">
-        <button className="btn btn-text" onClick={() => setSelectedSupplier(null)} style={{ marginBottom: '1rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <IconArrowLeft size={16} /> Back to Suppliers
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <button className="btn btn-text" onClick={() => setSelectedSupplier(null)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <IconArrowLeft size={16} /> Back to Suppliers
+          </button>
+          <button className="btn btn-action" onClick={handleDelete} style={{ color: '#e11d48', borderColor: '#e11d48' }}>
+            <IconTrash size={16} /> Delete
+          </button>
+        </div>
         
         <div className="glass-panel" style={{ marginBottom: '1.5rem' }}>
           <div className="flex-responsive">
@@ -98,7 +155,7 @@ export function Suppliers({ suppliers }) {
       <div className="flex-between" style={{ alignItems: 'center', marginBottom: '1.5rem' }}>
         <h2 style={{ fontSize: '18px', fontWeight: 500, color: 'var(--color-text-primary)' }}>Supplier Directory</h2>
         {canPerform(currentRole, 'ONBOARD_SUPPLIER') && (
-          <button className="btn btn-action-primary"><IconPlus size={16} /> Onboard New Supplier</button>
+          <button className="btn btn-action-primary" onClick={() => setIsAdding(true)}><IconPlus size={16} /> Onboard New Supplier</button>
         )}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>

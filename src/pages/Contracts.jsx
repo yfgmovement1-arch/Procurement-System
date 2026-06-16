@@ -1,19 +1,49 @@
 import React, { useState, useContext } from 'react';
 import { StatusPill } from '../components/StatusPill';
-import { IconArrowLeft, IconFileCertificate, IconPlus, IconBell, IconHistory } from '@tabler/icons-react';
+import { IconArrowLeft, IconFileCertificate, IconPlus, IconBell, IconHistory, IconTrash } from '@tabler/icons-react';
 import { RoleContext } from '../App';
 import { canPerform } from '../lib/rbac';
+import { createContract, deleteContract } from '../lib/supabaseClient';
 
-export function Contracts({ contracts }) {
+export function Contracts({ contracts, refresh, setToastMsg }) {
   const { currentRole } = useContext(RoleContext);
   const [selectedContract, setSelectedContract] = useState(null);
   const [view, setView] = useState('list'); // list, create
   const [newContract, setNewContract] = useState({ supplierId: '', title: '', value: '', startDate: '', endDate: '', terms: '' });
 
-  const handleCreate = (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
-    alert('Contract Draft Created successfully');
-    setView('list');
+    try {
+      const newId = `CON-${new Date().getFullYear()}-${Date.now().toString().slice(-3)}`;
+      await createContract({
+        id: newId,
+        supplier_id: newContract.supplierId,
+        title: newContract.title,
+        value: newContract.value,
+        start_date: newContract.startDate,
+        end_date: newContract.endDate,
+        terms: newContract.terms,
+        status: 'Active'
+      });
+      await refresh.contracts();
+      setToastMsg('Contract Draft Created successfully');
+      setView('list');
+      setNewContract({ supplierId: '', title: '', value: '', startDate: '', endDate: '', terms: '' });
+    } catch (err) {
+      setToastMsg('Error creating contract');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this contract?')) return;
+    try {
+      await deleteContract(selectedContract.id);
+      await refresh.contracts();
+      setToastMsg('Contract deleted');
+      setSelectedContract(null);
+    } catch (err) {
+      setToastMsg('Error deleting contract');
+    }
   };
 
   if (view === 'create') {
@@ -62,9 +92,14 @@ export function Contracts({ contracts }) {
   if (selectedContract) {
     return (
       <div className="contract-details">
-        <button className="btn btn-text" onClick={() => setSelectedContract(null)} style={{ marginBottom: '1rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <IconArrowLeft size={16} /> Back to Contracts
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+          <button className="btn btn-text" onClick={() => setSelectedContract(null)} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <IconArrowLeft size={16} /> Back to Contracts
+          </button>
+          <button className="btn btn-action" onClick={handleDelete} style={{ color: '#e11d48', borderColor: '#e11d48' }}>
+            <IconTrash size={16} /> Delete
+          </button>
+        </div>
         
         <div className="glass-panel">
           <div className="flex-between" style={{ borderBottom: '1px solid var(--color-border-tertiary)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>

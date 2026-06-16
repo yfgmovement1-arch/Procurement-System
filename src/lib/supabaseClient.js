@@ -24,10 +24,14 @@ function formatRequestRow(row) {
   };
 }
 
+// -------------------------------------------------------------
+// PURCHASE REQUESTS
+// -------------------------------------------------------------
 export async function getPurchaseRequests() {
   const { data, error } = await supabase
     .from('purchase_requests')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -35,29 +39,30 @@ export async function getPurchaseRequests() {
 }
 
 export async function createPurchaseRequest(request) {
-  const { error } = await supabase
-    .from('purchase_requests')
-    .insert([request]);
-
+  const { error } = await supabase.from('purchase_requests').insert([request]);
   if (error) throw error;
 }
 
 export async function updatePurchaseRequestStatus(id, status, approval_stage = null) {
   const payload = { status };
   if (approval_stage) payload.approval_stage = approval_stage;
-
-  const { error } = await supabase
-    .from('purchase_requests')
-    .update(payload)
-    .eq('id', id);
-
+  const { error } = await supabase.from('purchase_requests').update(payload).eq('id', id);
   if (error) throw error;
 }
 
+export async function deletePurchaseRequest(id) {
+  const { error } = await supabase.from('purchase_requests').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// PURCHASE ORDERS
+// -------------------------------------------------------------
 export async function getPurchaseOrders() {
   const { data, error } = await supabase
     .from('purchase_orders')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -80,10 +85,27 @@ export async function getPurchaseOrders() {
   }));
 }
 
+export async function createPurchaseOrder(record) {
+  const { error } = await supabase.from('purchase_orders').insert([record]);
+  if (error) throw error;
+}
+export async function updatePurchaseOrder(id, payload) {
+  const { error } = await supabase.from('purchase_orders').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deletePurchaseOrder(id) {
+  const { error } = await supabase.from('purchase_orders').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// SUPPLIERS
+// -------------------------------------------------------------
 export async function getSuppliers() {
   const { data, error } = await supabase
     .from('suppliers')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -102,10 +124,27 @@ export async function getSuppliers() {
   }));
 }
 
+export async function createSupplier(record) {
+  const { error } = await supabase.from('suppliers').insert([record]);
+  if (error) throw error;
+}
+export async function updateSupplier(id, payload) {
+  const { error } = await supabase.from('suppliers').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deleteSupplier(id) {
+  const { error } = await supabase.from('suppliers').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// INVENTORY
+// -------------------------------------------------------------
 export async function getInventoryItems() {
   const { data, error } = await supabase
     .from('inventory_items')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -120,10 +159,27 @@ export async function getInventoryItems() {
   }));
 }
 
+export async function createInventoryItem(record) {
+  const { error } = await supabase.from('inventory_items').insert([record]);
+  if (error) throw error;
+}
+export async function updateInventoryItem(code, payload) {
+  const { error } = await supabase.from('inventory_items').update(payload).eq('code', code);
+  if (error) throw error;
+}
+export async function deleteInventoryItem(code) {
+  const { error } = await supabase.from('inventory_items').update({ deleted_at: new Date().toISOString() }).eq('code', code);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// BUDGET LINES
+// -------------------------------------------------------------
 export async function getBudgetLines() {
   const { data, error } = await supabase
     .from('budget_lines')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -133,14 +189,32 @@ export async function getBudgetLines() {
     allocated: row.allocated,
     committed: row.committed,
     spent: row.spent,
+    progress: row.progress,
     color: row.color
   }));
 }
 
+export async function createBudgetLine(record) {
+  const { error } = await supabase.from('budget_lines').insert([record]);
+  if (error) throw error;
+}
+export async function updateBudgetLine(code, payload) {
+  const { error } = await supabase.from('budget_lines').update(payload).eq('code', code);
+  if (error) throw error;
+}
+export async function deleteBudgetLine(code) {
+  const { error } = await supabase.from('budget_lines').update({ deleted_at: new Date().toISOString() }).eq('code', code);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// CONTRACTS
+// -------------------------------------------------------------
 export async function getContracts() {
   const { data, error } = await supabase
     .from('contracts')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -156,10 +230,27 @@ export async function getContracts() {
   }));
 }
 
+export async function createContract(record) {
+  const { error } = await supabase.from('contracts').insert([record]);
+  if (error) throw error;
+}
+export async function updateContract(id, payload) {
+  const { error } = await supabase.from('contracts').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deleteContract(id) {
+  const { error } = await supabase.from('contracts').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// CATALOGUE
+// -------------------------------------------------------------
 export async function getCatalogue() {
   const { data, error } = await supabase
     .from('catalogue')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -174,10 +265,27 @@ export async function getCatalogue() {
   }));
 }
 
+export async function createCatalogueItem(record) {
+  const { error } = await supabase.from('catalogue').insert([record]);
+  if (error) throw error;
+}
+export async function updateCatalogueItem(id, payload) {
+  const { error } = await supabase.from('catalogue').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deleteCatalogueItem(id) {
+  const { error } = await supabase.from('catalogue').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// GOODS RECEIPTS
+// -------------------------------------------------------------
 export async function getGoodsReceipts() {
   const { data, error } = await supabase
     .from('goods_receipts')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -192,10 +300,27 @@ export async function getGoodsReceipts() {
   }));
 }
 
+export async function createGoodsReceipt(record) {
+  const { error } = await supabase.from('goods_receipts').insert([record]);
+  if (error) throw error;
+}
+export async function updateGoodsReceipt(id, payload) {
+  const { error } = await supabase.from('goods_receipts').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deleteGoodsReceipt(id) {
+  const { error } = await supabase.from('goods_receipts').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+// -------------------------------------------------------------
+// INVOICES
+// -------------------------------------------------------------
 export async function getInvoices() {
   const { data, error } = await supabase
     .from('invoices')
     .select('*')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -211,4 +336,17 @@ export async function getInvoices() {
     status: row.status,
     matchStatus: row.match_status
   }));
+}
+
+export async function createInvoice(record) {
+  const { error } = await supabase.from('invoices').insert([record]);
+  if (error) throw error;
+}
+export async function updateInvoice(id, payload) {
+  const { error } = await supabase.from('invoices').update(payload).eq('id', id);
+  if (error) throw error;
+}
+export async function deleteInvoice(id) {
+  const { error } = await supabase.from('invoices').update({ deleted_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
 }

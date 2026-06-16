@@ -39,12 +39,7 @@ export const RoleContext = createContext();
 const ProtectedRoute = ({ children, path }) => {
   const { currentRole } = useContext(RoleContext);
   if (!hasAccess(currentRole, path)) {
-    return (
-      <div className="glass-panel" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
-        <h2 style={{ color: 'var(--color-text-primary)' }}>Access Denied</h2>
-        <p style={{ color: 'var(--color-text-secondary)' }}>Your role ({currentRole}) does not have permission to view this module.</p>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -111,9 +106,16 @@ export default function App() {
     loadData();
   }, []);
 
-  const refreshRequests = async () => {
-    const updated = await getPurchaseRequests().catch(() => []);
-    setRequests(updated);
+  const refresh = {
+    requests: async () => { const updated = await getPurchaseRequests().catch(() => []); setRequests(updated); },
+    orders: async () => { const updated = await getPurchaseOrders().catch(() => []); setOrders(updated); },
+    suppliers: async () => { const updated = await getSuppliers().catch(() => []); setSuppliers(updated); },
+    inventory: async () => { const updated = await getInventoryItems().catch(() => []); setInventoryItems(updated); },
+    budget: async () => { const updated = await getBudgetLines().catch(() => []); setBudgetLines(updated); },
+    goodsReceipts: async () => { const updated = await getGoodsReceipts().catch(() => []); setGoodsReceipts(updated); },
+    invoices: async () => { const updated = await getInvoices().catch(() => []); setInvoices(updated); },
+    contracts: async () => { const updated = await getContracts().catch(() => []); setContracts(updated); },
+    catalogue: async () => { const updated = await getCatalogue().catch(() => []); setCatalogue(updated); }
   };
 
   const handleNewRequest = async (data) => {
@@ -133,7 +135,7 @@ export default function App() {
         approval_stage: 'Pending Manager'
       });
 
-      await refreshRequests();
+      await refresh.requests();
       setToastMsg('Purchase request submitted successfully');
       setIsModalOpen(false);
     } catch (err) {
@@ -162,15 +164,15 @@ export default function App() {
               {loading && <div className="loading-banner">Loading procurement data…</div>}
               <Routes>
                 <Route path="/" element={<ProtectedRoute path="/"><Dashboard requests={requests} budgetLines={budgetLines} orders={orders} /></ProtectedRoute>} />
-                <Route path="/requests" element={<ProtectedRoute path="/requests"><PurchaseRequests requests={requests} currentRole={currentRole} onRefresh={refreshRequests} /></ProtectedRoute>} />
-                <Route path="/orders" element={<ProtectedRoute path="/orders"><PurchaseOrders orders={orders} /></ProtectedRoute>} />
-                <Route path="/goods-receipts" element={<ProtectedRoute path="/goods-receipts"><GoodsReceipts receipts={goodsReceipts} orders={orders} /></ProtectedRoute>} />
-                <Route path="/invoices" element={<ProtectedRoute path="/invoices"><Invoices invoices={invoices} /></ProtectedRoute>} />
-                <Route path="/suppliers" element={<ProtectedRoute path="/suppliers"><Suppliers suppliers={suppliers} /></ProtectedRoute>} />
-                <Route path="/contracts" element={<ProtectedRoute path="/contracts"><Contracts contracts={contracts} /></ProtectedRoute>} />
-                <Route path="/catalogue" element={<ProtectedRoute path="/catalogue"><Catalogue catalogue={catalogue} /></ProtectedRoute>} />
-                <Route path="/inventory" element={<ProtectedRoute path="/inventory"><Inventory inventory={inventoryItems} /></ProtectedRoute>} />
-                <Route path="/budget" element={<ProtectedRoute path="/budget"><Budget budgetLines={budgetLines} /></ProtectedRoute>} />
+                <Route path="/requests" element={<ProtectedRoute path="/requests"><PurchaseRequests requests={requests} currentRole={currentRole} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/orders" element={<ProtectedRoute path="/orders"><PurchaseOrders orders={orders} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/goods-receipts" element={<ProtectedRoute path="/goods-receipts"><GoodsReceipts receipts={goodsReceipts} orders={orders} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/invoices" element={<ProtectedRoute path="/invoices"><Invoices invoices={invoices} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/suppliers" element={<ProtectedRoute path="/suppliers"><Suppliers suppliers={suppliers} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/contracts" element={<ProtectedRoute path="/contracts"><Contracts contracts={contracts} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/catalogue" element={<ProtectedRoute path="/catalogue"><Catalogue catalogue={catalogue} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/inventory" element={<ProtectedRoute path="/inventory"><Inventory inventory={inventoryItems} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
+                <Route path="/budget" element={<ProtectedRoute path="/budget"><Budget budgetLines={budgetLines} refresh={refresh} setToastMsg={setToastMsg} /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute path="/reports"><Reports /></ProtectedRoute>} />
                 <Route path="/settings" element={<ProtectedRoute path="/settings"><Settings /></ProtectedRoute>} />
               </Routes>
